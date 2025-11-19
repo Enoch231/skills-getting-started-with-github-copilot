@@ -49,10 +49,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (Array.isArray(details.participants) && details.participants.length > 0) {
           const ul = document.createElement("ul");
+          ul.style.listStyleType = "none";
+          ul.style.paddingLeft = "0";
           details.participants.forEach((p) => {
             const li = document.createElement("li");
-            // use textContent to safely insert participant string
-            li.textContent = p;
+            li.style.display = "flex";
+            li.style.alignItems = "center";
+            // Participant email
+            const span = document.createElement("span");
+            span.textContent = p;
+            li.appendChild(span);
+            // Delete icon
+            const deleteBtn = document.createElement("button");
+            deleteBtn.innerHTML = "&#128465;"; // Trash can emoji
+            deleteBtn.title = "Unregister participant";
+            deleteBtn.style.marginLeft = "8px";
+            deleteBtn.style.background = "none";
+            deleteBtn.style.border = "none";
+            deleteBtn.style.color = "#c62828";
+            deleteBtn.style.cursor = "pointer";
+            deleteBtn.style.fontSize = "1.1em";
+            deleteBtn.addEventListener("click", async () => {
+              if (confirm(`Unregister ${p} from ${name}?`)) {
+                try {
+                  const response = await fetch(`/activities/${encodeURIComponent(name)}/unregister?email=${encodeURIComponent(p)}`, { method: "POST" });
+                  if (response.ok) {
+                    fetchActivities();
+                  } else {
+                    alert("Failed to unregister participant.");
+                  }
+                } catch (err) {
+                  alert("Error unregistering participant.");
+                }
+              }
+            });
+            li.appendChild(deleteBtn);
             ul.appendChild(li);
           });
           participantsDiv.appendChild(ul);
